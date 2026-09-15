@@ -32,6 +32,15 @@
     (swap! *exit-items* conj f))
   nil)
 
+(defmulti pprint
+  "Multimethod to present result, by default uses pprint."
+  type)
+
+(defmethod pprint :default [x]
+  (print "=> ")
+  (pp/pprint x)
+  (println))
+
 (defn repl
   "Transcript-making REPL. Like a normal REPL except:
 
@@ -57,19 +66,17 @@ interactions."
                 (pp/pprint input)
                 (let [value (binding [*read-eval* read-eval] (eval input))]
                   (set! *3 *2) (set! *2 *1) (set! *1 value)
-                  (print "=> ")
-                  (pp/pprint value)
-                  (println))))))]
+                  (pprint value))))))]
     (main/with-bindings
       (binding [*exit-items* (atom ())]
         (try
-         (loop []
-           (let [value (read-eval-print)]
-             (when-not (identical? value request-exit)
-               (recur))))
-         (finally
-          (doseq [item @*exit-items*]
-            (item))))))))
+          (loop []
+            (let [value (read-eval-print)]
+              (when-not (identical? value request-exit)
+                (recur))))
+          (finally
+            (doseq [item @*exit-items*]
+              (item))))))))
 
 (defn- repl-on
   [r]
