@@ -33,7 +33,9 @@
   nil)
 
 (defmulti pprint
-  "Multimethod to present result, by default uses pprint."
+  "Multimethod to present result, by default:
+- pretty prints inputs
+- prints '=> ' before pretty printing results"
   type)
 
 (defmethod pprint :default [x]
@@ -42,15 +44,13 @@
   (println))
 
 (defn repl
-  "Transcript-making REPL. Like a normal REPL except:
+  "Transcript-making REPL. Like a normal REPL except uses [[pprint]] multimethod
+  to print the result based on type.
 
-- pretty prints inputs
-- prints '=> ' before pretty printing results
-- throws on exception
-
-Not intended for interactive use -- point this at a file to
-produce a transcript as-if a human had performed the
-interactions."
+  Throws on exception.
+  Not intended for interactive use -- point this at a file to
+  produce a transcript as-if a human had performed the
+  interactions."
   []
   (let [cl (.getContextClassLoader (Thread/currentThread))]
     (.setContextClassLoader (Thread/currentThread) (clojure.lang.DynamicClassLoader. cl)))
